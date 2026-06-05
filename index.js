@@ -23,6 +23,28 @@ const getFavouritesBtn = document.getElementById("getFavouritesBtn");
  *  - Each option should display text equal to the name of the breed.
  * This function should execute immediately.
  */
+async function initialLoad() {
+    // Part 2.2 Use fetch() to request the breed list from The Cat API.
+    const response = await fetch("https://api.thecatapi.com/v1/breeds", {
+        headers: {
+            "x-api-key": API_KEY,
+        },
+    });
+    const breeds = await response.json();
+    console.log(breeds);
+
+
+    breeds.forEach((breed) => {
+        const option = document.createElement("option")
+        option.value = breed.id;
+
+        option.textContent = breed.name;
+        breedSelect.appendChild(option);
+    });
+console.log("Breeds loaded:", breeds);
+}
+initialLoad();
+
 
 /**
  * 2. Create an event handler for breedSelect that does the following:
@@ -91,7 +113,7 @@ const getFavouritesBtn = document.getElementById("getFavouritesBtn");
  * - You can call this function by clicking on the heart at the top right of any image.
  */
 export async function favourite(imgId) {
-  // your code here
+    // your code here
 }
 
 /**
