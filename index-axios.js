@@ -12,6 +12,12 @@ const progressBar = document.getElementById("progressBar");
 // The get favourites button element.
 const getFavouritesBtn = document.getElementById("getFavouritesBtn");
 
+// Set the base URL
+axios.defaults.baseURL = "https://api.thecatapi.com/v1";
+
+// Set the API key for the Axios sends.
+axios.defaults.headers.common["x-api-key"] = API_KEY;
+
 // Step 0: Store your API key in the keys.js file.
 
 /**
@@ -25,14 +31,12 @@ const getFavouritesBtn = document.getElementById("getFavouritesBtn");
 
 //1. Create an async function "initialLoad" that does the following:
 async function initialLoad() {
-    // Retrieve a list of breeds from the cat API using fetch().
-    const response = await fetch("https://api.thecatapi.com/v1/breeds", {
-        headers: {
-            "x-api-key": API_KEY,
-        },
-    });
-    // Create new <options> for each of these breeds, and append them to breedSelect.
-    const breeds = await response.json();
+
+    // Retrieve a list of breeds from the cat API using Axios
+    const response = await axios.get("/breeds");
+
+    // Axios store data inside the respose.data
+    const breeds = response.data;
     console.log(breeds);
 
     // Each option should have a value attribute equal to the id of the breed.
@@ -78,18 +82,15 @@ async function loadBreed() {
     // Testing the breed id before using it in the API request.
     console.log("Selected Breed:", selectedBreedId);
 
-    // Retrieve information on the selected breed from the cat API using fetch().
-    const response = await fetch(
-        `https://api.thecatapi.com/v1/images/search?limit=10&breed_ids=${selectedBreedId}`,
-        {
-            headers: {
-                "x-api-key": API_KEY,
-            },
-        }
-    );
+    // Retrieve information on the selected breed from the cat API using Axios.
+    const response = await axios.get(`/images/search?limit=10&breed_ids=${selectedBreedId}`);
 
-    // Convert response into JSON.
-    const images = await response.json();
+    console.log(response);
+    console.log(response.data);
+
+
+    // Axios store the image array
+    const images = response.data;
 
     // Testing so we can see the image data from the API.
     console.log("Images for selected breed:", images);
