@@ -44,6 +44,7 @@ async function initialLoad() {
 console.log("Breeds loaded:", breeds);
 }
 initialLoad();
+// initialLoad();
 
 
 /**
