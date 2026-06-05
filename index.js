@@ -1,7 +1,6 @@
 import * as Carousel from "./Carousel.js";
 import { API_KEY } from "./keys.js";
 
-
 // import axios from "axios";
 
 // The breed selection input element.
@@ -23,28 +22,35 @@ const getFavouritesBtn = document.getElementById("getFavouritesBtn");
  *  - Each option should display text equal to the name of the breed.
  * This function should execute immediately.
  */
+
+//1. Create an async function "initialLoad" that does the following:
 async function initialLoad() {
-    // Part 2.2 Use fetch() to request the breed list from The Cat API.
+    // Retrieve a list of breeds from the cat API using fetch().
     const response = await fetch("https://api.thecatapi.com/v1/breeds", {
         headers: {
             "x-api-key": API_KEY,
         },
     });
+    // Create new <options> for each of these breeds, and append them to breedSelect.
     const breeds = await response.json();
     console.log(breeds);
 
-
+// Each option should have a value attribute equal to the id of the breed.
     breeds.forEach((breed) => {
         const option = document.createElement("option")
         option.value = breed.id;
-
+// Each option should display text equal to the name of the breed.
         option.textContent = breed.name;
         breedSelect.appendChild(option);
     });
 console.log("Breeds loaded:", breeds);
+
+// Load the breeds into the dropdown menu
+loadBreed();
 }
+
+// This function should execute immediately.
 initialLoad();
-// initialLoad();
 
 
 /**
@@ -61,6 +67,57 @@ initialLoad();
  * - Each new selection should clear, re-populate, and restart the Carousel.
  * - Add a call to this function to the end of your initialLoad function above to create the initial carousel.
  */
+
+// 2. Create an event handler for breedSelect that does the following
+
+// create the async function to load the cat's breed
+async function loadBreed() {
+  // Get the selected breed id from the dropdown.
+  const selectedBreedId = breedSelect.value;
+
+  // Testing the breed id before using it in the API request.
+  console.log("Selected Breed:", selectedBreedId);
+
+  // Retrieve information on the selected breed from the cat API using fetch().
+  const response = await fetch(
+    `https://api.thecatapi.com/v1/images/search?limit=10&breed_ids=${selectedBreedId}`,
+    {
+      headers: {
+        "x-api-key": API_KEY,
+      },
+    }
+  );
+
+  // Convert response into JSON.
+  const images = await response.json();
+
+  // Testing so we can see the image data from the API.
+  console.log("Images for selected breed:", images);
+
+  // Clear the old carousel before adding new images.
+  Carousel.clear();
+
+  // Loop through the images returned by the API.
+  images.forEach((cat) => {
+
+    // Create a carousel item using function from Carousel.js.
+    
+    const carouselItem = Carousel.createCarouselItem(
+      cat.url,
+      cat.breeds[0]?.name || "Cat image",
+      cat.id
+    );
+
+    // Add the new carousel item to the page.
+    Carousel.appendCarousel(carouselItem);
+  });
+
+  // Each new selection should clear, re-populate, and restart the Carousel.
+  Carousel.start();
+}
+
+// Create event listener for changes in the dropdown.
+breedSelect.addEventListener("change", loadBreed);
 
 /**
  * 3. Fork your own sandbox, creating a new one named "JavaScript Axios Lab."
