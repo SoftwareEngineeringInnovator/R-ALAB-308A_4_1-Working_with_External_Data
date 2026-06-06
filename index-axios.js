@@ -67,8 +67,10 @@ async function loadBreed() {
     console.log("Selected Breed:", selectedBreedId);
 
     // Retrieve information on the selected breed from the cat API using Axios.
-    const response = await axios.get(`/images/search?limit=10&breed_ids=${selectedBreedId}`);
-
+    const response = await axios.get(`/images/search?limit=10&breed_ids=${selectedBreedId}`, 
+        {
+        onDownloadProgress: updateProgress,
+});
     console.log(response);
     console.log(response.data);
 
@@ -145,41 +147,45 @@ function displayBreedInfo(breed) {
  */
 
 // Adding Axios interceptors to log the time between request and response to the console.
-
+let requestStartTime;
 // REQUEST
 axios.interceptors.request.use(function (config) {
     console.log("The request has started");
-    
-// save the reqquest start time
-    config.metadata = {startTime: new Date()};
-    
+
+    // save the reqquest start time
+    requestStartTime = new Date();
+
+    // Progess bar
+    progressBar.style.width = "0%";
+
+    document.body.style.cursor = "progress";
+
     return config;
 },
-function (error) {
-    return Promise.reject(error);
-});
+    function (error) {
+        return Promise.reject(error);
+    });
 
 // RESPONSE
 axios.interceptors.response.use(function (response) {
 
     // Provides time for the response
-    const endTime = new Date ();
+    const endTime = new Date();
 
-    //
-    const startTime = response.config.metada
-
-    // Provides time for the inital time
-    const duration = endTime - startTime;
+    // Provides the duration of the request
+    const duration = endTime - requestStartTime;
 
     console.log(`Request has been completed: ${duration} ms`);
 
-    return response;
-    
-},
-function (error) {
+    document.body.style.cursor = "default";
 
-    return Promise.reject(error);
-});
+    return response;
+
+},
+    function (error) {
+
+        return Promise.reject(error);
+    });
 
 /**
  * 6. Next, we'll create a progress bar to indicate the request is in progress.
@@ -197,6 +203,26 @@ function (error) {
  *   with for future projects.
  */
 
+function updateProgress(progressEvent) {
+
+    console.log(progressEvent);
+
+    if (progressEvent.total) {
+
+        const loaded = progressEvent.loaded;
+        const total = progressEvent.total;
+
+        const percentage = Math.round((loaded / total) * 100);
+
+        progressBar.style.width = percentage + "%";
+
+        console.log("Download Progress:", percentage + "%");
+    } else {
+    // Show the bar as complete once data arrives.
+    progressBar.style.width = "100%";
+    console.log("Download complete");
+}
+}
 /**
  * 7. As a final element of progress indication, add the following to your axios interceptors:
  * - In your request interceptor, set the body element's cursor style to "progress."
