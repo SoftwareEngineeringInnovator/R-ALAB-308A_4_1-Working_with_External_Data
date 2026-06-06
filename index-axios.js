@@ -67,10 +67,10 @@ async function loadBreed() {
     console.log("Selected Breed:", selectedBreedId);
 
     // Retrieve information on the selected breed from the cat API using Axios.
-    const response = await axios.get(`/images/search?limit=10&breed_ids=${selectedBreedId}`, 
+    const response = await axios.get(`/images/search?limit=10&breed_ids=${selectedBreedId}`,
         {
-        onDownloadProgress: updateProgress,
-});
+            onDownloadProgress: updateProgress,
+        });
     console.log(response);
     console.log(response.data);
 
@@ -203,6 +203,10 @@ axios.interceptors.response.use(function (response) {
  *   with for future projects.
  */
 
+// Create a function "updateProgress" that receives a ProgressEvent object.
+// https://www.youtube.com/watch?v=QabJ7e7ku58
+// https://codesandbox.io/p/sandbox/axios-ondownloadprogress-example-forked-vq3wyw?file=%2Fsrc%2FApp.js
+// https://developer.mozilla.org/en-US/docs/Web/API/ProgressEvent
 function updateProgress(progressEvent) {
 
     console.log(progressEvent);
@@ -218,10 +222,10 @@ function updateProgress(progressEvent) {
 
         console.log("Download Progress:", percentage + "%");
     } else {
-    // Show the bar as complete once data arrives.
-    progressBar.style.width = "100%";
-    console.log("Download complete");
-}
+        // Show the bar as complete once data arrives.
+        progressBar.style.width = "100%";
+        console.log("Download complete");
+    }
 }
 /**
  * 7. As a final element of progress indication, add the following to your axios interceptors:
@@ -239,8 +243,50 @@ function updateProgress(progressEvent) {
  *   you delete that favourite using the API, giving this function "toggle" functionality.
  * - You can call this function by clicking on the heart at the top right of any image.
  */
+
+// Create a system to "favourite" certain images
+async function getAllFavourites() {
+
+    const response = await axios.get("/favourites");
+
+    console.log("Current favourites:", response.data);
+
+    return response.data;
+}
+
+// Function to export
 export async function favourite(imgId) {
     // your code here
+    // The image id that was clcked will display in the web page console
+    console.log("Favourite clicked;", imgId);
+
+    // Provide information from the favourites
+    const favourites = await getAllFavourites();
+
+    // Return the favourite image id
+    const existingFavourite = favourites.find((favourite) => {
+        return favourite.image_id === imgId;
+    });
+
+    //  Remove the favorite ID
+    if (existingFavourite) {
+        const response = await axios.delete(`/favourites/${existingFavourite.id}`);
+
+        console.log("Favourite removed:", response.data);
+
+    //  Add the favorite ID
+    } else {
+        const response = await axios.post("/favourites", {
+            image_id: imgId,
+        });
+        console.log("Favourite added:", response.data);
+    }
+
+    // console.log(favourites);
+    // const response = await axios.post("/favourites", {
+    //     image_id: imgId,
+    // });
+    // console.log("Favourite added:", response.data);
 }
 
 /**
